@@ -62,17 +62,62 @@ class HTTPClient(object):
         while not done:
             part = sock.recv(1024)
             if (part):
+                print("RECV Part: "+part)
                 buffer.extend(part)
             else:
                 done = not part
         return buffer.decode('utf-8')
 
     def GET(self, url, args=None):
+        parse = urllib.parse.urlparse(url)
+        print(parse)
+        #if first split: does not contain leading http://, prepend that
+
+        pathSplit = parse.netloc.split(":")
+        address = pathSplit[0]
+        port = pathSplit[1]
+
+        print(address,port)
+        
+        self.connect(address,int(port))
+
+        request = "GET "+parse.path +"/ HTTP/1.1 \r\nHost: "+address+":"+port
+        print("Request:\n"+request)
+
+        self.sendall(request)
+
+        response = self.recvall(self.socket)
+        print("Response:\n"+response)
+
+        self.close()
+
         code = 500
         body = ""
+
+        
         return HTTPResponse(code, body)
 
     def POST(self, url, args=None):
+        parse = urllib.parse.urlparse(url)
+        print(parse)
+        #if first split: does not contain leading http://, prepend that
+
+        pathSplit = parse.netloc.split(":")
+        address = pathSplit[0]
+        port = pathSplit[1]
+
+        print(address,port)
+        
+        self.connect(address,int(port))
+
+        request = "POST "+parse.path +" HTTP/1.1 \r\nHost: "+address+":"+port
+        print("Request:\n"+request)
+
+        self.sendall(request)
+
+        response = self.recvall(self.socket)
+        print("Response:\n"+response)
+
         code = 500
         body = ""
         return HTTPResponse(code, body)
